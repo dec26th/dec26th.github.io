@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="ArrayList 与 LinkedList 的区别    HashMap 相关问题 为什么size为2次幂 resize() 影响效率的因素（负载因子，hash数组的size） 扰动函数的作用   HashMap 与 ConcurrentHashMap 为什么不安全？举例子  并发resize（）触发了闭环结构   HashMap 与 HashTable 数据结构 父类 扩容 线程上锁的范围">
+<meta name="description" content="ArrayList 与 LinkedList 的区别  区别：ArrayList类比动态数组，LinkedList类比链表。  插入元素时间复杂度 对于ArrayList来说，主要消耗的时间在于 System.arraycopy动作。add(E) 时间复杂度为O(1),而对于add(E,index)而言，时间复杂度为O(n)。 对于LinkedList来说，主要消耗的时间在于 for 循环找到指">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java知识">
 <meta property="og:url" content="http://yoursite.com/2020/05/18/Java%E7%9F%A5%E8%AF%86/index.html">
 <meta property="og:site_name" content="Place to knowledge">
-<meta property="og:description" content="ArrayList 与 LinkedList 的区别    HashMap 相关问题 为什么size为2次幂 resize() 影响效率的因素（负载因子，hash数组的size） 扰动函数的作用   HashMap 与 ConcurrentHashMap 为什么不安全？举例子  并发resize（）触发了闭环结构   HashMap 与 HashTable 数据结构 父类 扩容 线程上锁的范围">
+<meta property="og:description" content="ArrayList 与 LinkedList 的区别  区别：ArrayList类比动态数组，LinkedList类比链表。  插入元素时间复杂度 对于ArrayList来说，主要消耗的时间在于 System.arraycopy动作。add(E) 时间复杂度为O(1),而对于add(E,index)而言，时间复杂度为O(n)。 对于LinkedList来说，主要消耗的时间在于 for 循环找到指">
+<meta property="og:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200518232842252.png">
 <meta property="article:published_time" content="2020-05-18T12:57:06.000Z">
-<meta property="article:modified_time" content="2020-05-18T13:18:01.033Z">
+<meta property="article:modified_time" content="2020-05-18T16:35:46.206Z">
 <meta property="article:author" content="Dec26th">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="面试">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200518232842252.png">
 
 
 
@@ -354,18 +356,76 @@
 
       
         <ul>
-<li><strong>ArrayList 与 LinkedList 的区别</strong></li>
+<li><p><strong>ArrayList 与 LinkedList 的区别</strong></p>
+<ul>
+<li><p>区别：ArrayList类比动态数组，LinkedList类比链表。</p>
+</li>
+<li><p>插入元素时间复杂度</p>
+<p>对于ArrayList来说，主要消耗的时间在于 <strong>System.arraycopy</strong>动作。<strong>add(E)</strong> 时间复杂度为<strong>O(1)</strong>,而对于<strong>add(E,index)</strong>而言，时间复杂度为<strong>O(n)</strong>。</p>
+<p>对于LinkedList来说，主要消耗的时间在于 <strong>for</strong> 循环找到指定的<strong>index</strong>。<strong>add(E) ** 时间复杂度为</strong>O(1)<strong>,对于</strong>add(E,index)** 时间复杂度为<strong>O(n)</strong>。</p>
+</li>
+<li><p>ArrayList扩容的时机</p>
+<p>扩容的时机：新增元素后的minCapacity超过了当前集合的容量，则调用grow方法扩容，一般扩容到原大小的1.5倍。</p>
+</li>
+<li><p>ArrayList缩容的时机</p>
+<p>缩容的时机：ArrayList本身并不会自动缩容，但是提供了给外部缩容的<code>trimToSize()</code>方法。</p>
+<p><img src="D:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200518232842252.png" alt="image-20200518232842252"></p>
+</li>
+<li><p>ArrayList是否线程安全，有哪些线程安全的List</p>
+<p>否，Vector：给几乎所有的方法加上了<code>synchronized</code>关键字。所以被抛弃。</p>
+<p>​        CopyOnWriteArrayList:加了写锁的ArrayList，但是读操作可以并发。</p>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>HashMap</strong><ul>
-<li>相关问题<ol>
-<li>为什么size为2次幂</li>
-<li>resize()</li>
-<li>影响效率的因素（负载因子，hash数组的size）</li>
-<li>扰动函数的作用</li>
+<li><p><strong>copyonwriteList</strong></p>
+<ul>
+<li><p>如何实现线程安全</p>
+<p>多线程下只有一个线程能够获取到锁，然后使用复制原有数组的方式添加元素，之后再将新的数组替换原有的数组，最后释放锁（别的add线程去执行）。</p>
+</li>
+<li><p>加锁时机</p>
+<p>当由写进程调用<code>add()</code>方法时，调用<code>lock</code>方法继续加锁。</p>
+</li>
+<li><p>写的时候会读到空数据吗</p>
+<p>应该不回吧？。。</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><p><strong>HashMap</strong></p>
+<ul>
+<li><p>相关问题</p>
+<ol>
+<li><p>为什么size为2次幂</p>
+<p>HashMap为了能够实现存取高效，尽量减少碰撞的目的。需要将数据尽量的分配均匀，实现这种</p>
+</li>
+<li><p>resize()</p>
+</li>
+<li><p>影响效率的因素（负载因子，hash数组的size）</p>
+<p><strong>初始容量</strong> 与 <strong>负载因子</strong>。<strong>初始容量</strong> 只是哈希表在创建时的容量。<strong>负载因子</strong>时哈希表在其容量自动增加之前可以到达多满的一种尺度。 <strong>负载因子</strong>过高会减少空间成本(减少扩容机制的触发概率), 但是会增加查询成本。 <strong>初始容量</strong> 也需要考虑条目数及其加载因子，最大程度上减下扩容机制的触发。</p>
+</li>
+<li><p>扰动函数的作用</p>
+</li>
+<li><p>底层</p>
+</li>
+<li><p>扩容机制</p>
+<p>以下为jdk 13.0.2 版本的HashMap中putVal方法源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements Map.put and related methods.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> hash hash for key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> value the value to put</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> onlyIfAbsent if true, don't change existing value</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> evict if false, the table is in creation mode.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> previous value, or null if none</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若没有发生碰撞，则将键值对放入 <strong>buckets</strong> 中，若碰撞，则以链表形式存在 <strong>buckets</strong> 后，若碰撞导致链表过长，则把链表转坏为 <strong>红黑树</strong> ，若 <strong>buckets</strong> 满了，则需要<code>resize</code>。</p>
+</li>
+<li><p>hash方法的实现</p>
+</li>
 </ol>
 </li>
+</ul>
+</li>
+</ul>
+<ul>
 <li>HashMap 与 ConcurrentHashMap<ol>
 <li>为什么不安全？举例子<br>  并发resize（）触发了闭环结构</li>
 </ol>
@@ -376,8 +436,6 @@
 <li>扩容</li>
 <li>线程上锁的范围</li>
 </ol>
-</li>
-</ul>
 </li>
 </ul>
 <hr>
@@ -423,7 +481,11 @@
 </li>
 </ul>
 <hr>
-
+<ul>
+<li><strong>Java编译后的字节码文件结构</strong></li>
+</ul>
+<hr>
+<a id="more"></a>
       
     </div>
     
@@ -464,6 +526,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/18/Java%E9%9D%A2%E8%AF%95%E5%B9%B6%E8%A1%8C%E7%AF%87/" rel="prev" title="Java面试并行篇">
+                Java面试并行篇 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -535,7 +601,7 @@
               
                 <a href="/archives/%7C%7Carchive">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -546,7 +612,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -557,7 +623,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
