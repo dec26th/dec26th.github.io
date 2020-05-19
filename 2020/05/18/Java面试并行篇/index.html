@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="线程的状态： new runnable wait time-wait block terminated      进程，线程，协程 含义 区别      进程间的通信方法 管道 FIFO 信号量 共享内存 消息队列 Socket      如何避免死锁？ 四个必要条件      Sleep与Wait    Synchronized与Lock 的区别    Synchronized的底层优化">
+<meta name="description" content="线程的状态： new runnable wait time-wait block terminated      进程，线程，协程  含义  进程 是系统进行资源分配和调度的一个独立单位，每个进程具有自己独立内存空间。  线程 线程是进程的一个实体，是CPU调度和分派的基本单位，是比进程更小的基本单位，他通过进程获取内存空间。  协程 用户态的轻量级线程，协程的调度完全由用户控制。    区别">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java面试并行篇">
 <meta property="og:url" content="http://yoursite.com/2020/05/18/Java%E9%9D%A2%E8%AF%95%E5%B9%B6%E8%A1%8C%E7%AF%87/index.html">
 <meta property="og:site_name" content="Place to knowledge">
-<meta property="og:description" content="线程的状态： new runnable wait time-wait block terminated      进程，线程，协程 含义 区别      进程间的通信方法 管道 FIFO 信号量 共享内存 消息队列 Socket      如何避免死锁？ 四个必要条件      Sleep与Wait    Synchronized与Lock 的区别    Synchronized的底层优化">
+<meta property="og:description" content="线程的状态： new runnable wait time-wait block terminated      进程，线程，协程  含义  进程 是系统进行资源分配和调度的一个独立单位，每个进程具有自己独立内存空间。  线程 线程是进程的一个实体，是CPU调度和分派的基本单位，是比进程更小的基本单位，他通过进程获取内存空间。  协程 用户态的轻量级线程，协程的调度完全由用户控制。    区别">
 <meta property="article:published_time" content="2020-05-18T13:33:00.000Z">
-<meta property="article:modified_time" content="2020-05-18T16:39:58.522Z">
+<meta property="article:modified_time" content="2020-05-19T06:42:57.713Z">
 <meta property="article:author" content="Dec26th">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="并行">
@@ -378,9 +378,37 @@
 </ul>
 <hr>
 <ul>
-<li><strong>进程，线程，协程</strong><ul>
-<li>含义</li>
-<li>区别</li>
+<li><p><strong>进程，线程，协程</strong></p>
+<ul>
+<li><p>含义</p>
+<ul>
+<li><p>进程</p>
+<p>是系统进行资源分配和调度的一个独立单位，每个进程具有自己独立内存空间。</p>
+</li>
+<li><p>线程</p>
+<p>线程是进程的一个实体，是CPU调度和分派的基本单位，是比进程更小的基本单位，他通过进程获取内存空间。</p>
+</li>
+<li><p>协程</p>
+<p>用户态的轻量级线程，协程的调度完全由用户控制。</p>
+</li>
+</ul>
+</li>
+<li><p>区别</p>
+<ul>
+<li>进程与线程：<ol>
+<li>进程有自己独立的内存空间，而线程没有，线程需要依赖于进程的内存空间。一个进程至少有一个线程</li>
+<li>进程是资源调度的基本单位</li>
+<li>同一个进程内的线程共享进程的资源，进程是资源分配的单位。</li>
+</ol>
+</li>
+<li>线程与协程：<ol>
+<li>一个线程可以拥有多个协程，一个进程也可以拥有多个协程。</li>
+<li>协程为异步，线程则是同步。</li>
+<li>协程保留上一次调用状态。</li>
+</ol>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -398,18 +426,64 @@
 </ul>
 <hr>
 <ul>
-<li><strong>如何避免死锁？</strong><ul>
-<li>四个必要条件</li>
+<li><p><strong>如何避免死锁？</strong></p>
+<ul>
+<li><p>四个必要条件</p>
+<ul>
+<li><p>互斥条件</p>
+<p>临界资源任意时刻进一个线程占有。</p>
+</li>
+<li><p>请求与保持条件</p>
+<p>进程请求资源而阻塞，对以获得资源保持不妨。</p>
+</li>
+<li><p>不剥夺条件</p>
+<p>临界资源未使用完，则其他的线程不能剥夺。</p>
+</li>
+<li><p>循环等待条件</p>
+<p>循环等待资源。</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>Sleep与Wait</strong></li>
+<li><strong>Sleep与Wait</strong><ul>
+<li><code>sleep()</code>不释放🔒，但是<code>wait()</code>释放🔒</li>
+<li><code>sleep()</code>后会自动苏醒，而对于<code>wait()</code>若无参数，则需要等待同一对象的<code>notify()notifyAll()</code>唤醒。若有 <strong>timeout</strong>参数，则会超时后苏醒。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Synchronized与Lock 的区别</strong></li>
+<li><p><strong>Synchronized与ReentrantLock 的区别</strong></p>
+<ul>
+<li><p>两者都是可重入锁</p>
+<p>获得某一对象锁时，若自己没有释放，也可重复再次获得该对象的锁。</p>
+</li>
+<li><p>Synchronized 依赖于JVM实现，而ReentrantLock依赖于API实现(JDK层面)</p>
+</li>
+<li><p>ReentrantLock可实现公平锁，而Synchronized仅实现不公平锁。</p>
+</li>
+<li><p>等待/通知机制 不同:</p>
+<ul>
+<li><p>Synchronized 通过 <code>notyfy() notifyAll() wait()</code>实现等待与通知。</p>
+</li>
+<li><p>ReentrantLock 通过 Condition对象来实现：</p>
+<ul>
+<li><p>一个lock可以创建多个conditon对象，一个condition对象可以注册多个线程。</p>
+<p>Condition对象调用 <code>signal() signalAll()</code></p>
+<p>​    唤醒已注册的线程</p>
+<p>Synchronized 调用 <code>notify() || notifyAll()</code></p>
+<p>​    唤醒JVM选择的线程</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -417,7 +491,18 @@
 </ul>
 <hr>
 <ul>
-<li><strong>volatile的作用</strong></li>
+<li><p><strong>volatile的作用</strong></p>
+<ul>
+<li><p>防止指令重排</p>
+</li>
+<li><p>保证变量的可见性</p>
+<p>当前Java内存模型，不是从主存读取变量，而是将变量保存在本地内存(寄存器)。</p>
+<p>可能存在一个线程修改主存中得变量，而另一个进程仍使用本地内存中的变量拷贝值，</p>
+<p>造成数据不一致。</p>
+<p>变量volatile告诉JVM该变量不稳定，需要每次在主存中读取该值。</p>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>

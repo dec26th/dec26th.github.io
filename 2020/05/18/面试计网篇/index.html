@@ -79,18 +79,20 @@
 
 
 
-<meta name="description" content="TCP&#x2F;IP模型，OSI模型    应用层，传输层，网络层常见的协议 DNS HTTP FTP STMP SSL TCP UDP ARP IP      TCP三次握手，TCP四次挥手 为什么三，不是二？ 四次握手的具体内涵      TCP可靠性 ARQ 流量控制 拥塞控制 校验和      输入URL显示主页的过程    HTTPS和HTTP区别    Cookie和Session的区别">
+<meta name="description" content="TCP&#x2F;IP模型，OSI模型    应用层，传输层，网络层常见的协议 DNS HTTP FTP STMP SSL TCP UDP ARP IP      TCP三次握手，TCP四次挥手   为什么三，不是二？ 两次可能会出现建立多个链接的情况。例如发送方因为各种原因没有收到接收方的确认报文，则会再次向接收方发送connection请求，但是这时上一次发送的确认报文又被发送方收获，同时接收方相应">
 <meta property="og:type" content="article">
 <meta property="og:title" content="面试计网篇">
 <meta property="og:url" content="http://yoursite.com/2020/05/18/%E9%9D%A2%E8%AF%95%E8%AE%A1%E7%BD%91%E7%AF%87/index.html">
 <meta property="og:site_name" content="Place to knowledge">
-<meta property="og:description" content="TCP&#x2F;IP模型，OSI模型    应用层，传输层，网络层常见的协议 DNS HTTP FTP STMP SSL TCP UDP ARP IP      TCP三次握手，TCP四次挥手 为什么三，不是二？ 四次握手的具体内涵      TCP可靠性 ARQ 流量控制 拥塞控制 校验和      输入URL显示主页的过程    HTTPS和HTTP区别    Cookie和Session的区别">
+<meta property="og:description" content="TCP&#x2F;IP模型，OSI模型    应用层，传输层，网络层常见的协议 DNS HTTP FTP STMP SSL TCP UDP ARP IP      TCP三次握手，TCP四次挥手   为什么三，不是二？ 两次可能会出现建立多个链接的情况。例如发送方因为各种原因没有收到接收方的确认报文，则会再次向接收方发送connection请求，但是这时上一次发送的确认报文又被发送方收获，同时接收方相应">
+<meta property="og:image" content="d:%5CBlog%5Csource_posts%5C%E9%9D%A2%E8%AF%95%E8%AE%A1%E7%BD%91%E7%AF%87%5Cimage-20200519131537082.png">
 <meta property="article:published_time" content="2020-05-18T13:40:05.000Z">
-<meta property="article:modified_time" content="2020-05-18T13:47:37.011Z">
+<meta property="article:modified_time" content="2020-05-19T06:08:20.222Z">
 <meta property="article:author" content="Dec26th">
 <meta property="article:tag" content="面试">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="d:%5CBlog%5Csource_posts%5C%E9%9D%A2%E8%AF%95%E8%AE%A1%E7%BD%91%E7%AF%87%5Cimage-20200519131537082.png">
 
 
 
@@ -374,41 +376,154 @@
 </ul>
 <hr>
 <ul>
-<li><strong>TCP三次握手，TCP四次挥手</strong><ul>
-<li>为什么三，不是二？</li>
-<li>四次握手的具体内涵</li>
+<li><p><strong>TCP三次握手，TCP四次挥手</strong></p>
+<p><img src="D:%5CBlog%5Csource_posts%5C%E9%9D%A2%E8%AF%95%E8%AE%A1%E7%BD%91%E7%AF%87%5Cimage-20200519131537082.png" alt="image-20200519131537082"></p>
+<ul>
+<li><p>为什么三，不是二？</p>
+<p>两次<strong>可能</strong>会出现<strong>建立多个链接</strong>的情况。例如发送方因为各种原因<strong>没有收到</strong>接收方的确认报文，则会<strong>再次</strong>向接收方发送connection请求，但是这时<strong>上一次发送的确认报文</strong>又被发送方收获，同时接收方相应第二次的连接请求，再次建立一个Tcp Connection。而三次握手则可以很好的避免该情况发生。</p>
+</li>
+<li><p>四次握手的具体内涵</p>
+<ul>
+<li><p>第一次：<strong>客户端通知服务器</strong>关闭链接，发送包，其中FIN = 1，seq = x.</p>
+</li>
+<li><p>第二次：<strong>服务器给客户端发送确认包</strong>，表示<strong>收到请求</strong>，但是并<strong>没有准备好</strong>关闭链接 ACK = 1，ACKnum = x + 1.</p>
+</li>
+<li><p>第三次：<strong>服务器给客户端</strong>发送<strong>连接关闭请求</strong>，FIN = 1,seq = y.</p>
+</li>
+<li><p>第四次：客户端<strong>收到服务端关闭连接响应</strong>，发送确认包。其中ACK = 1，ACKnum = y + 1服务器收到确认后，关闭连接。客户端在<strong>等待固定时间</strong>没有收到重传报文后，自己也关闭连接。</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>TCP可靠性</strong><ul>
-<li>ARQ</li>
-<li>流量控制</li>
-<li>拥塞控制</li>
-<li>校验和</li>
+<li><p><strong>TCP可靠性</strong></p>
+<ul>
+<li><p>ARQ</p>
+<p>自动重传请求</p>
+</li>
+<li><p>流量控制</p>
+<ul>
+<li>防止<strong>接收方</strong>从<strong>缓冲区读取数据</strong>速度慢</li>
+<li>控制发送方发送速率，防止接收方缓存溢出</li>
+</ul>
+</li>
+<li><p>拥塞控制</p>
+<ul>
+<li><p>非正式定义：过多源发送过多数据，<strong>超过网络的处理能力</strong></p>
+</li>
+<li><p>不用于流量控制：会产生丢包(<strong>路由器缓冲区溢出</strong>)，延时长(<strong>路由器缓冲区排队</strong>)</p>
+</li>
+<li><p>TCP拥塞控制算法：</p>
+<ul>
+<li><p>慢启动：</p>
+<p>建立连接时，<strong>ConWin = 1 MSS</strong>。而<strong>可用宽带 &gt;&gt;&gt; 1 MSS</strong> 以指数的速度增加发送速率，直到发生一个丢包发生为止。</p>
+</li>
+<li><p>乘性减：</p>
+<p>发生丢包时间以后，ConWin <strong>大小减半</strong>，<strong>门限值</strong>设置为<strong>当前ConWin的一半</strong>。</p>
+</li>
+<li><p>加性增：</p>
+<p>窗口<strong>增大到门限值</strong>以后，<strong>线性增大</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>校验和</p>
+<p>TCP报文拥有校验和的字段，用于校验报文端是否出错</p>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>输入URL显示主页的过程</strong></li>
+<li><strong>输入URL显示主页的过程</strong><ul>
+<li>DNS解析URL，返回对应IP</li>
+<li>主机与对应IP服务器创建TCP链接</li>
+<li>发送HTTP请求报文</li>
+<li>服务器解析HTTP请求报文，并且发送HTTP相应</li>
+<li>接收方收到HTTP响应，并且渲染页面</li>
+<li>断开TCP链接</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>HTTPS和HTTP区别</strong></li>
+<li><strong>HTTPS和HTTP区别</strong><ul>
+<li>HTTPS协议是SSL + HTTP协议构建的可进行加密传输，身份认证的网络协议，相较于HTTP协议更加的安全。</li>
+<li>端口号不同</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Cookie和Session的区别</strong></li>
+<li><strong>Cookie和Session的区别</strong><ul>
+<li>Cookie保存在客户端而Session保存在服务器端。</li>
+<li>Cookie相对比较不安全，可以被分析然后用来Cookie诈骗。而Session相对来说更加的安全可靠。</li>
+<li>Session由于存放在服务器端，当访问多时，影响服务器的性能。</li>
+<li>单个Cookie的大小限制是3K。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>HTTP1.0和HTTP1.1和HTTP2.0的区别</strong></li>
+<li><p><strong>HTTP1.0和HTTP1.1和HTTP2.0的区别</strong></p>
+<ul>
+<li><p>HTTP1.0与HTTP1.1之间的区别</p>
+<ul>
+<li><p>长连接</p>
+<p>1.0默认短链接，1.1默认的长连接</p>
+</li>
+<li><p>节约带宽</p>
+<p>1.0请求资源时，只能请求资源的所有，而对于1.1，他能够请求资源的部分</p>
+</li>
+<li><p>缓存处理</p>
+</li>
+<li><p>错误状态响应码不同</p>
+</li>
+<li><p>HOST域</p>
+<p>1.0默认一台主机只有一个IP地址，不需要添加hostname字段，而随着虚拟机技术的发展，一台物理机就可以对应了多台虚拟机，可以通过hostname指定虚拟机，若不指定虚拟机则会报错。</p>
+</li>
+</ul>
+</li>
+<li><p>HTTP1.1与HTTP2.0的区别</p>
+<ul>
+<li><p>多路复用</p>
+<p>1.x采用keep alive 字段来解决复用TCP的问题，但是仍然存在着请求阻塞的问题。一条连接只能对应一个请求。而对于2.0，TCP链接可以并发的发起多个请求，且每个请求以stream的方式传输，每个stream有唯一的标识。</p>
+</li>
+<li><p>数据压缩</p>
+<p>2.0支持header的压缩，而1.1不支持</p>
+</li>
+<li><p>服务器推送</p>
+<p>服务器会顺便把一些客户端需要的资源一起推送给客户端，免得客户端再次创建链接发送请求到服务器端获取，方便获取各种静态资源。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>get 和post的区别</strong></li>
+<li><strong>get 和post的区别</strong><ul>
+<li>参数传递<ul>
+<li>GET通过URL传递</li>
+<li>POST通过main body传递</li>
+</ul>
+</li>
+<li>刷新<ul>
+<li>GET用于<strong>获取资源</strong>，不改变资源的状态，<strong>具有幂等性</strong>。</li>
+<li>POST用于<strong>创建资源</strong>，<strong>不具有幂等性</strong>，两次相同的POST请求会在服务器端创建两份资源，他们具有不同的URI。</li>
+</ul>
+</li>
+<li>缓存问题<ul>
+<li>GET在浏览器中缓存。</li>
+<li>POST在浏览器中不缓存</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>

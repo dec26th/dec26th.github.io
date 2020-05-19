@@ -86,8 +86,11 @@
 <meta property="og:site_name" content="Place to knowledge">
 <meta property="og:description" content="ArrayList 与 LinkedList 的区别  区别：ArrayList类比动态数组，LinkedList类比链表。  插入元素时间复杂度 对于ArrayList来说，主要消耗的时间在于 System.arraycopy动作。add(E) 时间复杂度为O(1),而对于add(E,index)而言，时间复杂度为O(n)。 对于LinkedList来说，主要消耗的时间在于 for 循环找到指">
 <meta property="og:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200518232842252.png">
+<meta property="og:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5C519be432-d93c-11e4-85bb-dff0a03af9d3.png">
+<meta property="og:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5C7853175-ab75cd3738471507.png">
+<meta property="og:image" content="d:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200519112613960.png">
 <meta property="article:published_time" content="2020-05-18T12:57:06.000Z">
-<meta property="article:modified_time" content="2020-05-18T16:35:46.206Z">
+<meta property="article:modified_time" content="2020-05-19T06:06:14.065Z">
 <meta property="article:author" content="Dec26th">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="面试">
@@ -374,6 +377,7 @@
 <li><p>ArrayList是否线程安全，有哪些线程安全的List</p>
 <p>否，Vector：给几乎所有的方法加上了<code>synchronized</code>关键字。所以被抛弃。</p>
 <p>​        CopyOnWriteArrayList:加了写锁的ArrayList，但是读操作可以并发。</p>
+<a id="more"></a>
 </li>
 </ul>
 </li>
@@ -401,77 +405,200 @@
 <li><p>相关问题</p>
 <ol>
 <li><p>为什么size为2次幂</p>
-<p>HashMap为了能够实现存取高效，尽量减少碰撞的目的。需要将数据尽量的分配均匀，实现这种</p>
+<p>在HashMap的构造函数当中，即使你输入了<strong>HashMap</strong>大小的参数，但是他依旧会返回一个 <strong>size</strong>为2次幂的 <strong>HashMap</strong>。</p>
+<p>源码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns a power of two size for the given target capacity.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">tableSizeFor</span><span class="params">(<span class="keyword">int</span> cap)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = -<span class="number">1</span> &gt;&gt;&gt; Integer.numberOfLeadingZeros(cap - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> (n &lt; <span class="number">0</span>) ? <span class="number">1</span> : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好处在于，在计算key的hash值时，从前采用的是 <strong>h % length</strong>,但是求余的运算量并不高，但是开发者发现，当<strong>HashMap</strong>的<strong>size为2次幂</strong>时， <strong>h % length</strong> 可以通过 <strong>h &amp; (length - 1)</strong>完美的替换，并且速度有了很好的提升。而采取取模的思想则是为了能将<strong>key</strong>比较<strong>均匀</strong>的<strong>分配</strong>到<strong>HashMap</strong>当中，从而减小碰撞的概率。</p>
 </li>
 <li><p>resize()</p>
-</li>
-<li><p>影响效率的因素（负载因子，hash数组的size）</p>
-<p><strong>初始容量</strong> 与 <strong>负载因子</strong>。<strong>初始容量</strong> 只是哈希表在创建时的容量。<strong>负载因子</strong>时哈希表在其容量自动增加之前可以到达多满的一种尺度。 <strong>负载因子</strong>过高会减少空间成本(减少扩容机制的触发概率), 但是会增加查询成本。 <strong>初始容量</strong> 也需要考虑条目数及其加载因子，最大程度上减下扩容机制的触发。</p>
-</li>
-<li><p>扰动函数的作用</p>
-</li>
-<li><p>底层</p>
-</li>
-<li><p>扩容机制</p>
-<p>以下为jdk 13.0.2 版本的HashMap中putVal方法源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements Map.put and related methods.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> hash hash for key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> value the value to put</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> onlyIfAbsent if true, don't change existing value</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> evict if false, the table is in creation mode.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> previous value, or null if none</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当在 <code>put</code>方法被调用时，就可能会产生 <strong>bucket</strong>占用程度超过了 <strong>Load Factor(负载因子)</strong> 所希望的比例，则会发生<code>resize()</code> ，而因为每次增长都为二次幂，所以在之后的元素位置，要不原地不表，要不就是移动2次幂的距离。</p>
+<p>而<code>resize()</code>之后，不需要重新计算hash值，而index值需要重新进行计算。因为size增加为原来的两倍，那么mask则会多出来1位，而我们又知道，计算index只需要对应的<strong>hashCode</strong>与<strong>size - 1</strong>异或。只需要知道新增的那一位是什么即可。若多出来一位为0，则index不变，若多出来的一位为1，则index在原来的基础上增加相应大小即可，并且这一机制也很好的将数据在 <strong>HashMap</strong>中平均分配。具体情况如图所示：</p>
+<p><img src="D:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5C519be432-d93c-11e4-85bb-dff0a03af9d3.png" alt=""></p>
+<p><code>resize()</code>源码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Initializes or doubles table size.  If null, allocates in</span></span><br><span class="line"><span class="comment">     * accord with initial capacity target held in field threshold.</span></span><br><span class="line"><span class="comment">     * Otherwise, because we are using power-of-two expansion, the</span></span><br><span class="line"><span class="comment">     * elements from each bin must either stay at same index, or move</span></span><br><span class="line"><span class="comment">     * with a power of two offset in the new table.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the table</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;K,V&gt;[] resize() &#123;</span><br><span class="line">        Node&lt;K,V&gt;[] oldTab = table;</span><br><span class="line">        <span class="keyword">int</span> oldCap = (oldTab == <span class="keyword">null</span>) ? <span class="number">0</span> : oldTab.length;</span><br><span class="line">        <span class="keyword">int</span> oldThr = threshold;</span><br><span class="line">        <span class="keyword">int</span> newCap, newThr = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (oldCap &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</span><br><span class="line">                threshold = Integer.MAX_VALUE;</span><br><span class="line">                <span class="keyword">return</span> oldTab;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> ((newCap = oldCap &lt;&lt; <span class="number">1</span>) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">                     oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">                newThr = oldThr &lt;&lt; <span class="number">1</span>; <span class="comment">// double threshold</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (oldThr &gt; <span class="number">0</span>) <span class="comment">// initial capacity was placed in threshold</span></span><br><span class="line">            newCap = oldThr;</span><br><span class="line">        <span class="keyword">else</span> &#123;               <span class="comment">// zero initial threshold signifies using defaults</span></span><br><span class="line">            newCap = DEFAULT_INITIAL_CAPACITY;</span><br><span class="line">            newThr = (<span class="keyword">int</span>)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (newThr == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">float</span> ft = (<span class="keyword">float</span>)newCap * loadFactor;</span><br><span class="line">            newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (<span class="keyword">float</span>)MAXIMUM_CAPACITY ?</span><br><span class="line">                      (<span class="keyword">int</span>)ft : Integer.MAX_VALUE);</span><br><span class="line">        &#125;</span><br><span class="line">        threshold = newThr;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"rawtypes"</span>,<span class="string">"unchecked"</span>&#125;)</span><br><span class="line">        Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])<span class="keyword">new</span> Node[newCap];</span><br><span class="line">        table = newTab;</span><br><span class="line">        <span class="keyword">if</span> (oldTab != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; oldCap; ++j) &#123;</span><br><span class="line">                Node&lt;K,V&gt; e;</span><br><span class="line">                <span class="keyword">if</span> ((e = oldTab[j]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    oldTab[j] = <span class="keyword">null</span>;</span><br><span class="line">                    <span class="keyword">if</span> (e.next == <span class="keyword">null</span>)</span><br><span class="line">                        newTab[e.hash &amp; (newCap - <span class="number">1</span>)] = e;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                        ((TreeNode&lt;K,V&gt;)e).split(<span class="keyword">this</span>, newTab, j, oldCap);</span><br><span class="line">                    <span class="keyword">else</span> &#123; <span class="comment">// preserve order</span></span><br><span class="line">                        Node&lt;K,V&gt; loHead = <span class="keyword">null</span>, loTail = <span class="keyword">null</span>;</span><br><span class="line">                        Node&lt;K,V&gt; hiHead = <span class="keyword">null</span>, hiTail = <span class="keyword">null</span>;</span><br><span class="line">                        Node&lt;K,V&gt; next;</span><br><span class="line">                        <span class="keyword">do</span> &#123;</span><br><span class="line">                            next = e.next;</span><br><span class="line">                            <span class="keyword">if</span> ((e.hash &amp; oldCap) == <span class="number">0</span>) &#123;</span><br><span class="line">                                <span class="keyword">if</span> (loTail == <span class="keyword">null</span>)</span><br><span class="line">                                    loHead = e;</span><br><span class="line">                                <span class="keyword">else</span></span><br><span class="line">                                    loTail.next = e;</span><br><span class="line">                                loTail = e;</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="keyword">else</span> &#123;</span><br><span class="line">                                <span class="keyword">if</span> (hiTail == <span class="keyword">null</span>)</span><br><span class="line">                                    hiHead = e;</span><br><span class="line">                                <span class="keyword">else</span></span><br><span class="line">                                    hiTail.next = e;</span><br><span class="line">                                hiTail = e;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125; <span class="keyword">while</span> ((e = next) != <span class="keyword">null</span>);</span><br><span class="line">                        <span class="keyword">if</span> (loTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            loTail.next = <span class="keyword">null</span>;</span><br><span class="line">                            newTab[j] = loHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">if</span> (hiTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            hiTail.next = <span class="keyword">null</span>;</span><br><span class="line">                            newTab[j + oldCap] = hiHead;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> newTab;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p>若没有发生碰撞，则将键值对放入 <strong>buckets</strong> 中，若碰撞，则以链表形式存在 <strong>buckets</strong> 后，若碰撞导致链表过长，则把链表转坏为 <strong>红黑树</strong> ，若 <strong>buckets</strong> 满了，则需要<code>resize</code>。</p>
-</li>
-<li><p>hash方法的实现</p>
+
+
 </li>
 </ol>
 </li>
 </ul>
 </li>
 </ul>
-<ul>
-<li>HashMap 与 ConcurrentHashMap<ol>
-<li>为什么不安全？举例子<br>  并发resize（）触发了闭环结构</li>
+<pre><code>3. 影响效率的因素（负载因子，hash数组的size）
+
+   **初始容量** 与 **负载因子**。**初始容量** 只是哈希表在创建时的容量。**负载因子**时哈希表在其容量自动增加之前可以到达多满的一种尺度。 **负载因子**过高会减少空间成本(减少扩容机制的触发概率), 但是会增加查询成本。 **初始容量** 也需要考虑条目数及其加载因子，最大程度上减下扩容机制的触发。
+
+4. 扰动函数的作用
+
+   扰动函数即`hash()`，其目的减少碰撞问题。
+
+   原理：通过将高半区与低半区的异或，加大低位的随机性，同时也能一定程度上保留高位的信息。
+
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Computes key.hashCode() and spreads (XORs) higher bits of hash</span></span><br><span class="line"><span class="comment"> * to lower.  Because the table uses power-of-two masking, sets of</span></span><br><span class="line"><span class="comment"> * hashes that vary only in bits above the current mask will</span></span><br><span class="line"><span class="comment"> * always collide. (Among known examples are sets of Float keys</span></span><br><span class="line"><span class="comment"> * holding consecutive whole numbers in small tables.)  So we</span></span><br><span class="line"><span class="comment"> * apply a transform that spreads the impact of higher bits</span></span><br><span class="line"><span class="comment"> * downward. There is a tradeoff between speed, utility, and</span></span><br><span class="line"><span class="comment"> * quality of bit-spreading. Because many common sets of hashes</span></span><br><span class="line"><span class="comment"> * are already reasonably distributed (so don't benefit from</span></span><br><span class="line"><span class="comment"> * spreading), and because we use trees to handle large sets of</span></span><br><span class="line"><span class="comment"> * collisions in bins, we just XOR some shifted bits in the</span></span><br><span class="line"><span class="comment"> * cheapest possible way to reduce systematic lossage, as well as</span></span><br><span class="line"><span class="comment"> * to incorporate impact of the highest bits that would otherwise</span></span><br><span class="line"><span class="comment"> * never be used in index calculations because of table bounds.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+5. 底层
+
+   在jdk1.8以后，**HashMap**采用**位桶 + 链表 + 红黑树**的数据结构。 **位桶**产生冲突，则将元素加入链表，若链表的长度超过了**阈值**，则将链表转换为了**红黑树**(大大缩减了查找时间，O(lgn))。
+
+6. 扩容机制
+
+   以下为jdk 13.0.2 版本的HashMap中putVal方法源码：
+
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements Map.put and related methods.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> hash hash for key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> value the value to put</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> onlyIfAbsent if true, don't change existing value</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> evict if false, the table is in creation mode.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> previous value, or null if none</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="comment">//若该链为链</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);<span class="comment">//该链为树</span></span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+   若没有发生碰撞，则将键值对放入 **buckets** 中，若碰撞，则以链表形式存在 **buckets** 后，若碰撞导致链表过长，则把链表转坏为 **红黑树** ，若 **buckets** 满了，则需要`resize`。
+
+7. hash方法的实现
+
+   在`get`与`put`方法当中，计算下标index时，需要对 **hashCode** 进行 `hash` 操作，然后通过得到的 `hash`值。
+
+    ![](D:\Blog\source\_posts\Java知识\293b52fc-d932-11e4-854d-cb47be67949a.png)
+
+   hashCode由 `hashCode()`本身以及他 **右移16位** 的结果 **异或** 得到。</code></pre><ul>
+<li><p>HashMap 与 ConcurrentHashMap</p>
+<ol>
+<li><p>为什么不安全？举例子</p>
+<ol>
+<li><p><code>get</code>方法可能因为 <code>resize（）</code>触发了闭环结构。</p>
+<p> <img src="D:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5C7853175-ab75cd3738471507.png" alt=""></p>
+<p> 当两个线程A,B同时调用了HashMap的<code>resize()</code>方法时，则可能会在A调用方法<strong>还没完成</strong>后，时间片结束，<strong>B</strong>调用<code>resize()</code>方法并且将HashMap的容量扩大，但是当A获得CPU控制权之后，A所持有的HashMap是<strong>已经扩容过后</strong>的HashMap，而如图所示，A首先将[3,A]迁移到新数组，然后再处理[7,B]，而处理完[7,B]后需要处理[7,B]的next，而在这时，经过线程B之后，[7,B]的next已经变为了[3,A]，所以这将生成一个[7,B]与[3,A]的环形链表。</p>
+</li>
+<li><p>在有多个put线程时，会产生<strong>数据被覆盖</strong>的情况。假设A先通过hash获得了桶的索引值<strong>(无碰撞)</strong>，但是<strong>时间片结束</strong>，此时B刚好获得相同的桶索引值<strong>(A还没插入，依旧是无碰撞)</strong>并且插入，但到了A运行后，他并不知道桶已经有了B会发生碰撞，依旧写入桶中的相应索引位置，所以B的数据被覆盖。</p>
+</li>
 </ol>
 </li>
-<li>HashMap 与 HashTable<ol>
-<li>数据结构</li>
-<li>父类</li>
-<li>扩容</li>
-<li>线程上锁的范围</li>
+</ol>
+</li>
+<li><p>HashMap 与 HashTable</p>
+<ol>
+<li><p>数据结构</p>
+<p>HashTable : 数组 + 链表</p>
+<p>HashMap : 数组 + 链表 + 红黑树</p>
+</li>
+<li><p>父类</p>
+<p>HashTable 的父类是Dictionary类</p>
+<p>而 HashMap 的父类是 Map类</p>
+</li>
+<li><p>扩容</p>
+<p><strong>HashTable</strong> 初始容量为<strong>1</strong>，增大方式为 <strong>old * 2 + 1</strong></p>
+<p>而 <strong>HashMap</strong> 初始容量为<strong>16</strong>，容量一定为<strong>2的倍数</strong></p>
+<p><strong>HashTable</strong> 计算 hash值 采用的<strong>取模</strong></p>
+<p>而 <strong>HashMap</strong>采用的是<strong>按位与(本质也是取模）</strong></p>
+</li>
+<li><p>线程上锁的范围T</p>
+<p>HashTable 的 <code>put()</code>方法是<code>synchronized</code>的。</p>
+</li>
 </ol>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>euqals 与 ==</strong><ul>
-<li>为什么要重写hashCode（）</li>
+<li><p><strong>euqals 与 ==</strong></p>
+<p>   对于引用变量而言，使用==判断的是两个引用变量是否引用的是同一个对象，而equals默认也是==判断，但是可以根据用户的需求重写该方法。</p>
+<ul>
+<li><p>为什么要重写hashCode（）</p>
+<p>需要对比的时候，首先用<strong>hashCode</strong>去对比，如果<strong>hashCode不一样</strong>，则表示这两个<strong>对象肯定不相等</strong>（也就是不必再用equals()去再对比了）,<strong>如果hashCode相同</strong>，此时<strong>再用equals()</strong>比，如果equals()也相同，则表示这两个对象是真的相同了，这样既能大大提高了效率也保证了对比的绝对正确性！</p>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>String StringBuilder 与 StringBuffer</strong><ul>
-<li>区别与使用场景</li>
-<li>为什么String设置为不可变对象</li>
+<li><p><strong>String StringBuilder 与 StringBuffer</strong></p>
+<ul>
+<li><p>区别与使用场景</p>
+<ul>
+<li><p>String</p>
+<p>字符串常量，字符串长度不可。</p>
+</li>
+<li><p>StringBuilder</p>
+<p>字符串变量，线程不安全，性能相较于StringBuffer好一些。</p>
+</li>
+<li><p>StringBuffer</p>
+<p>字符串变量，并且线程安全，性能相较于StringBuilder差一些。</p>
+<p><code>append()</code>方法为<code>synchronized</code></p>
+</li>
+</ul>
+</li>
+<li><p>为什么String设置为不可变对象</p>
+<ul>
+<li><p>字符串常量池</p>
+<p>字符串常量池(<strong>String pool, String intern pool</strong>) 是Java 堆内存中的特殊存储区域，当创建一个新的String对象时，假如内容已经存放在字符串常量池中，则不需要new，直接引用该已经存在的对象即可。</p>
+</li>
+<li><p>安全性</p>
+<p>String被许多的Java类(库)用来当作参数，URL,文件路径path，反射机制的String参数等等，若String可变，则可能引发不可知的问题。</p>
+</li>
+<li><p>默认的多线程安全</p>
+</li>
+<li><p>创建的时候<strong>hashcode</strong>就已经确定，<strong>不需要重新计算</strong>，这也HashMap经常将String当作key的原因(hashcode不需要重复计算)。</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>接口与抽象类</strong></li>
+<li><p><strong>接口与抽象类</strong></p>
+<p><img src="D:%5CBlog%5Csource_posts%5CJava%E7%9F%A5%E8%AF%86%5Cimage-20200519112613960.png" alt="image-20200519112613960"></p>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>重写与重载</strong></li>
+<li><p><strong>重写与重载</strong></p>
+<ul>
+<li><p>重写</p>
+<p>重写是子类对父类可以访问方法(<strong>方法名，参数列表都必须相同，返回值可以小于等于父类返回值</strong>)进行重新的声明。属于晚期绑定。</p>
+</li>
+<li><p>重载</p>
+<p>重载是对指具有相同方法名的方法<strong>带有不同参数列表(参数个数不同或者至少一个参数类型不相同)</strong>的版本，其返回值也可以不同。</p>
+<p>仅返回类型不同，其余参数都相同的方法不是合法的重载方法。</p>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>深拷贝与浅拷贝</strong></li>
+<li><strong>深拷贝与浅拷贝</strong><ul>
+<li>深拷贝：将所有的属性都拷贝进一个新的对象当中(该对象与原对象的<strong>地址不同</strong>，<strong>不是同一个对象</strong>)。</li>
+<li>浅拷贝：返回<strong>当前对象的引用</strong>(返回的是对象本身的引用)。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Java三大特性</strong></li>
+<li><strong>Java三大特性</strong><ul>
+<li>封装：将成员变量与方法封装进一个类体当中，仅对外公开可访问的方法与成员变量。</li>
+<li>继承：Java支持单继承。支持在现有类的基础上，增加新的方法或重写已有的方法，从而产生一个新的类。</li>
+<li>多态：通过引用变量调用实例函数式，根据所引用的实际对象的类型，执行该类型的相应实例方法，从而表现出不同的行为。一般通过继承时覆盖父类的实例方法实现多态，在运行时根据引用变量指向的实际对象类型，来重新计算调用方法的入口地址。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Object的方法</strong></li>
+<li><p><strong>Object的方法</strong></p>
+<ul>
+<li><p><code>toString</code></p>
+<p>public，返回代表该对象的字符串，Object类默认返回类名，@与hashCode。</p>
+</li>
+<li><p><code>equals</code></p>
+<p>public，用于测试两个对象是否相等，Object类默认实现时比较两个对象引用是否引用同一个对象。</p>
+</li>
+<li><p><code>getClass</code></p>
+<p>public，用于泛型和反射机制，为final类，禁止覆盖。</p>
+</li>
+<li><p><code>clone</code></p>
+<p>protected，提供了一个浅拷贝的方法</p>
+</li>
+<li><p><code>finalize</code></p>
+<p>protected，释放该对象的内存空间。</p>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -485,7 +612,7 @@
 <li><strong>Java编译后的字节码文件结构</strong></li>
 </ul>
 <hr>
-<a id="more"></a>
+
       
     </div>
     

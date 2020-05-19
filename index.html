@@ -719,41 +719,154 @@
 </ul>
 <hr>
 <ul>
-<li><strong>TCP三次握手，TCP四次挥手</strong><ul>
-<li>为什么三，不是二？</li>
-<li>四次握手的具体内涵</li>
+<li><p><strong>TCP三次握手，TCP四次挥手</strong></p>
+<p><img src="D:%5CBlog%5Csource_posts%5C%E9%9D%A2%E8%AF%95%E8%AE%A1%E7%BD%91%E7%AF%87%5Cimage-20200519131537082.png" alt="image-20200519131537082"></p>
+<ul>
+<li><p>为什么三，不是二？</p>
+<p>两次<strong>可能</strong>会出现<strong>建立多个链接</strong>的情况。例如发送方因为各种原因<strong>没有收到</strong>接收方的确认报文，则会<strong>再次</strong>向接收方发送connection请求，但是这时<strong>上一次发送的确认报文</strong>又被发送方收获，同时接收方相应第二次的连接请求，再次建立一个Tcp Connection。而三次握手则可以很好的避免该情况发生。</p>
+</li>
+<li><p>四次握手的具体内涵</p>
+<ul>
+<li><p>第一次：<strong>客户端通知服务器</strong>关闭链接，发送包，其中FIN = 1，seq = x.</p>
+</li>
+<li><p>第二次：<strong>服务器给客户端发送确认包</strong>，表示<strong>收到请求</strong>，但是并<strong>没有准备好</strong>关闭链接 ACK = 1，ACKnum = x + 1.</p>
+</li>
+<li><p>第三次：<strong>服务器给客户端</strong>发送<strong>连接关闭请求</strong>，FIN = 1,seq = y.</p>
+</li>
+<li><p>第四次：客户端<strong>收到服务端关闭连接响应</strong>，发送确认包。其中ACK = 1，ACKnum = y + 1服务器收到确认后，关闭连接。客户端在<strong>等待固定时间</strong>没有收到重传报文后，自己也关闭连接。</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>TCP可靠性</strong><ul>
-<li>ARQ</li>
-<li>流量控制</li>
-<li>拥塞控制</li>
-<li>校验和</li>
+<li><p><strong>TCP可靠性</strong></p>
+<ul>
+<li><p>ARQ</p>
+<p>自动重传请求</p>
+</li>
+<li><p>流量控制</p>
+<ul>
+<li>防止<strong>接收方</strong>从<strong>缓冲区读取数据</strong>速度慢</li>
+<li>控制发送方发送速率，防止接收方缓存溢出</li>
+</ul>
+</li>
+<li><p>拥塞控制</p>
+<ul>
+<li><p>非正式定义：过多源发送过多数据，<strong>超过网络的处理能力</strong></p>
+</li>
+<li><p>不用于流量控制：会产生丢包(<strong>路由器缓冲区溢出</strong>)，延时长(<strong>路由器缓冲区排队</strong>)</p>
+</li>
+<li><p>TCP拥塞控制算法：</p>
+<ul>
+<li><p>慢启动：</p>
+<p>建立连接时，<strong>ConWin = 1 MSS</strong>。而<strong>可用宽带 &gt;&gt;&gt; 1 MSS</strong> 以指数的速度增加发送速率，直到发生一个丢包发生为止。</p>
+</li>
+<li><p>乘性减：</p>
+<p>发生丢包时间以后，ConWin <strong>大小减半</strong>，<strong>门限值</strong>设置为<strong>当前ConWin的一半</strong>。</p>
+</li>
+<li><p>加性增：</p>
+<p>窗口<strong>增大到门限值</strong>以后，<strong>线性增大</strong>。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>校验和</p>
+<p>TCP报文拥有校验和的字段，用于校验报文端是否出错</p>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>输入URL显示主页的过程</strong></li>
+<li><strong>输入URL显示主页的过程</strong><ul>
+<li>DNS解析URL，返回对应IP</li>
+<li>主机与对应IP服务器创建TCP链接</li>
+<li>发送HTTP请求报文</li>
+<li>服务器解析HTTP请求报文，并且发送HTTP相应</li>
+<li>接收方收到HTTP响应，并且渲染页面</li>
+<li>断开TCP链接</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>HTTPS和HTTP区别</strong></li>
+<li><strong>HTTPS和HTTP区别</strong><ul>
+<li>HTTPS协议是SSL + HTTP协议构建的可进行加密传输，身份认证的网络协议，相较于HTTP协议更加的安全。</li>
+<li>端口号不同</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Cookie和Session的区别</strong></li>
+<li><strong>Cookie和Session的区别</strong><ul>
+<li>Cookie保存在客户端而Session保存在服务器端。</li>
+<li>Cookie相对比较不安全，可以被分析然后用来Cookie诈骗。而Session相对来说更加的安全可靠。</li>
+<li>Session由于存放在服务器端，当访问多时，影响服务器的性能。</li>
+<li>单个Cookie的大小限制是3K。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>HTTP1.0和HTTP1.1和HTTP2.0的区别</strong></li>
+<li><p><strong>HTTP1.0和HTTP1.1和HTTP2.0的区别</strong></p>
+<ul>
+<li><p>HTTP1.0与HTTP1.1之间的区别</p>
+<ul>
+<li><p>长连接</p>
+<p>1.0默认短链接，1.1默认的长连接</p>
+</li>
+<li><p>节约带宽</p>
+<p>1.0请求资源时，只能请求资源的所有，而对于1.1，他能够请求资源的部分</p>
+</li>
+<li><p>缓存处理</p>
+</li>
+<li><p>错误状态响应码不同</p>
+</li>
+<li><p>HOST域</p>
+<p>1.0默认一台主机只有一个IP地址，不需要添加hostname字段，而随着虚拟机技术的发展，一台物理机就可以对应了多台虚拟机，可以通过hostname指定虚拟机，若不指定虚拟机则会报错。</p>
+</li>
+</ul>
+</li>
+<li><p>HTTP1.1与HTTP2.0的区别</p>
+<ul>
+<li><p>多路复用</p>
+<p>1.x采用keep alive 字段来解决复用TCP的问题，但是仍然存在着请求阻塞的问题。一条连接只能对应一个请求。而对于2.0，TCP链接可以并发的发起多个请求，且每个请求以stream的方式传输，每个stream有唯一的标识。</p>
+</li>
+<li><p>数据压缩</p>
+<p>2.0支持header的压缩，而1.1不支持</p>
+</li>
+<li><p>服务器推送</p>
+<p>服务器会顺便把一些客户端需要的资源一起推送给客户端，免得客户端再次创建链接发送请求到服务器端获取，方便获取各种静态资源。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>get 和post的区别</strong></li>
+<li><strong>get 和post的区别</strong><ul>
+<li>参数传递<ul>
+<li>GET通过URL传递</li>
+<li>POST通过main body传递</li>
+</ul>
+</li>
+<li>刷新<ul>
+<li>GET用于<strong>获取资源</strong>，不改变资源的状态，<strong>具有幂等性</strong>。</li>
+<li>POST用于<strong>创建资源</strong>，<strong>不具有幂等性</strong>，两次相同的POST请求会在服务器端创建两份资源，他们具有不同的URI。</li>
+</ul>
+</li>
+<li>缓存问题<ul>
+<li>GET在浏览器中缓存。</li>
+<li>POST在浏览器中不缓存</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -940,9 +1053,37 @@
 </ul>
 <hr>
 <ul>
-<li><strong>进程，线程，协程</strong><ul>
-<li>含义</li>
-<li>区别</li>
+<li><p><strong>进程，线程，协程</strong></p>
+<ul>
+<li><p>含义</p>
+<ul>
+<li><p>进程</p>
+<p>是系统进行资源分配和调度的一个独立单位，每个进程具有自己独立内存空间。</p>
+</li>
+<li><p>线程</p>
+<p>线程是进程的一个实体，是CPU调度和分派的基本单位，是比进程更小的基本单位，他通过进程获取内存空间。</p>
+</li>
+<li><p>协程</p>
+<p>用户态的轻量级线程，协程的调度完全由用户控制。</p>
+</li>
+</ul>
+</li>
+<li><p>区别</p>
+<ul>
+<li>进程与线程：<ol>
+<li>进程有自己独立的内存空间，而线程没有，线程需要依赖于进程的内存空间。一个进程至少有一个线程</li>
+<li>进程是资源调度的基本单位</li>
+<li>同一个进程内的线程共享进程的资源，进程是资源分配的单位。</li>
+</ol>
+</li>
+<li>线程与协程：<ol>
+<li>一个线程可以拥有多个协程，一个进程也可以拥有多个协程。</li>
+<li>协程为异步，线程则是同步。</li>
+<li>协程保留上一次调用状态。</li>
+</ol>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -960,18 +1101,64 @@
 </ul>
 <hr>
 <ul>
-<li><strong>如何避免死锁？</strong><ul>
-<li>四个必要条件</li>
+<li><p><strong>如何避免死锁？</strong></p>
+<ul>
+<li><p>四个必要条件</p>
+<ul>
+<li><p>互斥条件</p>
+<p>临界资源任意时刻进一个线程占有。</p>
+</li>
+<li><p>请求与保持条件</p>
+<p>进程请求资源而阻塞，对以获得资源保持不妨。</p>
+</li>
+<li><p>不剥夺条件</p>
+<p>临界资源未使用完，则其他的线程不能剥夺。</p>
+</li>
+<li><p>循环等待条件</p>
+<p>循环等待资源。</p>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li><strong>Sleep与Wait</strong></li>
+<li><strong>Sleep与Wait</strong><ul>
+<li><code>sleep()</code>不释放🔒，但是<code>wait()</code>释放🔒</li>
+<li><code>sleep()</code>后会自动苏醒，而对于<code>wait()</code>若无参数，则需要等待同一对象的<code>notify()notifyAll()</code>唤醒。若有 <strong>timeout</strong>参数，则会超时后苏醒。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
-<li><strong>Synchronized与Lock 的区别</strong></li>
+<li><p><strong>Synchronized与ReentrantLock 的区别</strong></p>
+<ul>
+<li><p>两者都是可重入锁</p>
+<p>获得某一对象锁时，若自己没有释放，也可重复再次获得该对象的锁。</p>
+</li>
+<li><p>Synchronized 依赖于JVM实现，而ReentrantLock依赖于API实现(JDK层面)</p>
+</li>
+<li><p>ReentrantLock可实现公平锁，而Synchronized仅实现不公平锁。</p>
+</li>
+<li><p>等待/通知机制 不同:</p>
+<ul>
+<li><p>Synchronized 通过 <code>notyfy() notifyAll() wait()</code>实现等待与通知。</p>
+</li>
+<li><p>ReentrantLock 通过 Condition对象来实现：</p>
+<ul>
+<li><p>一个lock可以创建多个conditon对象，一个condition对象可以注册多个线程。</p>
+<p>Condition对象调用 <code>signal() signalAll()</code></p>
+<p>​    唤醒已注册的线程</p>
+<p>Synchronized 调用 <code>notify() || notifyAll()</code></p>
+<p>​    唤醒JVM选择的线程</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -979,7 +1166,18 @@
 </ul>
 <hr>
 <ul>
-<li><strong>volatile的作用</strong></li>
+<li><p><strong>volatile的作用</strong></p>
+<ul>
+<li><p>防止指令重排</p>
+</li>
+<li><p>保证变量的可见性</p>
+<p>当前Java内存模型，不是从主存读取变量，而是将变量保存在本地内存(寄存器)。</p>
+<p>可能存在一个线程修改主存中得变量，而另一个进程仍使用本地内存中的变量拷贝值，</p>
+<p>造成数据不一致。</p>
+<p>变量volatile告诉JVM该变量不稳定，需要每次在主存中读取该值。</p>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -1170,117 +1368,6 @@
 <li><p>ArrayList是否线程安全，有哪些线程安全的List</p>
 <p>否，Vector：给几乎所有的方法加上了<code>synchronized</code>关键字。所以被抛弃。</p>
 <p>​        CopyOnWriteArrayList:加了写锁的ArrayList，但是读操作可以并发。</p>
-</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li><p><strong>copyonwriteList</strong></p>
-<ul>
-<li><p>如何实现线程安全</p>
-<p>多线程下只有一个线程能够获取到锁，然后使用复制原有数组的方式添加元素，之后再将新的数组替换原有的数组，最后释放锁（别的add线程去执行）。</p>
-</li>
-<li><p>加锁时机</p>
-<p>当由写进程调用<code>add()</code>方法时，调用<code>lock</code>方法继续加锁。</p>
-</li>
-<li><p>写的时候会读到空数据吗</p>
-<p>应该不回吧？。。</p>
-</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li><p><strong>HashMap</strong></p>
-<ul>
-<li><p>相关问题</p>
-<ol>
-<li><p>为什么size为2次幂</p>
-<p>HashMap为了能够实现存取高效，尽量减少碰撞的目的。需要将数据尽量的分配均匀，实现这种</p>
-</li>
-<li><p>resize()</p>
-</li>
-<li><p>影响效率的因素（负载因子，hash数组的size）</p>
-<p><strong>初始容量</strong> 与 <strong>负载因子</strong>。<strong>初始容量</strong> 只是哈希表在创建时的容量。<strong>负载因子</strong>时哈希表在其容量自动增加之前可以到达多满的一种尺度。 <strong>负载因子</strong>过高会减少空间成本(减少扩容机制的触发概率), 但是会增加查询成本。 <strong>初始容量</strong> 也需要考虑条目数及其加载因子，最大程度上减下扩容机制的触发。</p>
-</li>
-<li><p>扰动函数的作用</p>
-</li>
-<li><p>底层</p>
-</li>
-<li><p>扩容机制</p>
-<p>以下为jdk 13.0.2 版本的HashMap中putVal方法源码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements Map.put and related methods.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> hash hash for key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> key the key</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> value the value to put</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> onlyIfAbsent if true, don't change existing value</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> evict if false, the table is in creation mode.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> previous value, or null if none</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">               <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>若没有发生碰撞，则将键值对放入 <strong>buckets</strong> 中，若碰撞，则以链表形式存在 <strong>buckets</strong> 后，若碰撞导致链表过长，则把链表转坏为 <strong>红黑树</strong> ，若 <strong>buckets</strong> 满了，则需要<code>resize</code>。</p>
-</li>
-<li><p>hash方法的实现</p>
-</li>
-</ol>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>HashMap 与 ConcurrentHashMap<ol>
-<li>为什么不安全？举例子<br>  并发resize（）触发了闭环结构</li>
-</ol>
-</li>
-<li>HashMap 与 HashTable<ol>
-<li>数据结构</li>
-<li>父类</li>
-<li>扩容</li>
-<li>线程上锁的范围</li>
-</ol>
-</li>
-</ul>
-<hr>
-<ul>
-<li><strong>euqals 与 ==</strong><ul>
-<li>为什么要重写hashCode（）</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li><strong>String StringBuilder 与 StringBuffer</strong><ul>
-<li>区别与使用场景</li>
-<li>为什么String设置为不可变对象</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li><strong>接口与抽象类</strong></li>
-</ul>
-<hr>
-<ul>
-<li><strong>重写与重载</strong></li>
-</ul>
-<hr>
-<ul>
-<li><strong>深拷贝与浅拷贝</strong></li>
-</ul>
-<hr>
-<ul>
-<li><strong>Java三大特性</strong></li>
-</ul>
-<hr>
-<ul>
-<li><strong>Object的方法</strong></li>
-</ul>
-<hr>
-<ul>
-<li><strong>设计模式</strong><ul>
-<li>单例模式为什么采用双检测机制</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li><strong>Java编译后的字节码文件结构</strong></li>
-</ul>
-<hr>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/05/18/Java%E7%9F%A5%E8%AF%86/#more" rel="contents">
@@ -1450,26 +1537,47 @@
         
           <hr>
 <ul>
-<li>内存区域<ul>
-<li>程序计数器</li>
-<li>虚拟机栈</li>
-<li>本地方法栈</li>
-<li>堆</li>
-<li>方法区</li>
-<li>元空间</li>
+<li><p>内存区域</p>
+<p>Java内存结构如图所示:</p>
+<p><img src="D:%5CBlog%5Csource_posts%5CJava%E9%9D%A2%E8%AF%95JVM%E7%AF%87%5C331425-20160623115840235-1252768148.png" alt=""></p>
+<ul>
+<li><p>程序计数器</p>
+<p>其作用是当前线程所执行的字节码行号的指示器。类似与CPU中的PC寄存器。而对于Java的多线程，其本质上是<strong>一个处理器(也指多核处理器中的一个核)</strong>同一时间只会执行一条指令，所以对于每一个线程，都需要一个程序计数器，所以我们也称其为<strong>线程私有</strong>。如果线程正在执行的是一个Java方法，这个计数器记录的是正在执行的虚拟机字节码指令的地址，如果正在执行的是Native方法，这个计数器值则为空（Undefined）。此内存区域是唯一一个在Java虚拟机规范中没有规定任何OutOfMemoryError情况的区域。</p>
+</li>
+<li><p>虚拟机栈</p>
+<p>同程序计数器，他也是<strong>线程私有</strong>的。<strong>每个方法被执行</strong>的时候都会同时<strong>创建一个栈帧(Stack Frame)</strong>用于<strong>存储局部变量表，操作栈，动态链接与方法出口</strong>等信息。每个<strong>方法被调用直至执行完成</strong>的过程，就对印着相应一个栈帧在<strong>虚拟机栈中入栈和出栈</strong>的过程。</p>
+</li>
+<li><p>本地方法栈</p>
+<p>与虚拟机栈发货作用类似。区别在于，虚拟机栈为虚拟机<strong>执行Java方法(bytecode)服务</strong>，而本地方法则是为虚拟机使用到的<strong>Native方法</strong>服务。</p>
+</li>
+<li><p>堆</p>
+<p>堆是JVM中管理的<strong>内存中最大的一块</strong>，是被所有线程都能够共享该内存区域。用于存放<strong>几乎所有的对象实例</strong>。</p>
+</li>
+<li><p>方法区</p>
+<p>用于存放被虚拟机加载的<strong>类信息</strong>，<strong>常量</strong>，<strong>静态变量,其中也包括常量池</strong>。也被称为<strong>永久代(Permanent Generation)</strong></p>
+</li>
+<li><p>元空间</p>
+<p>对JBM规范中的方法去的实现，元空间并不在虚拟机中，而是使用本地内存。</p>
+</li>
 </ul>
 </li>
 </ul>
 <hr>
 <ul>
-<li>Minor GC触发条件<ul>
-<li>eden区剩余内存问题</li>
-</ul>
+<li><p>Minor GC触发条件</p>
+<p>Eden区满时，则出发Minor GC</p>
 </li>
 </ul>
 <hr>
 <ul>
-<li>FULL GC触发条件<br>  Minor GC 平均晋升空间大小&gt;老年代连续剩余空间，则触发FULL GC</li>
+<li>FULL GC触发条件<br>  Minor GC 平均晋升空间大小&gt;老年代连续剩余空间，则触发FULL GC<ul>
+<li>调用System.gc时，系统建议执行FULL GC，但是不一定执行。</li>
+<li>老年代空间不足。</li>
+<li>方法区空间不足。</li>
+<li>通过Minor GC后进入老年代的平均大小大于老年代的可用内存。</li>
+<li>由Eden区，From Space区向To Space区复制时，对象大小小于To Space，则把该对象转存老年代，且老年代的可用内存小于该对象的大小。</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
